@@ -42,7 +42,18 @@ class SnakeEnv(gym.Env):
 
     def step(self, action):
         self.prev_actions.append(action)
-        
+        #"""
+        cv2.imshow('a',self.img)
+        cv2.waitKey(1)
+        self.img = np.zeros((500,500,3),dtype='uint8')
+        # Display Apple
+        cv2.rectangle(self.img,(self.apple_position[0],self.apple_position[1]),(self.apple_position[0]+10,self.apple_position[1]+10),(0,0,255),3)
+        # Display Snake
+        for position in self.snake_position:
+            cv2.rectangle(self.img,(position[0],position[1]),(position[0]+10,position[1]+10),(0,255,0),3)
+        #"""
+
+
         # Takes step after fixed time
         #t_end = time.time() + 0.05
         #k = -1
@@ -74,6 +85,12 @@ class SnakeEnv(gym.Env):
         
         # On collision kill the snake and print the score
         if collision_with_boundaries(self.snake_head) == 1 or collision_with_self(self.snake_position) == 1:
+            """
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            self.img = np.zeros((500,500,3),dtype='uint8')
+            cv2.putText(self.img,'Your Score is {}'.format(self.score),(140,250), font, 1,(255,255,255),2,cv2.LINE_AA)
+            cv2.imshow('a',self.img)
+            """
             self.done = True
 
         self.total_reward = len(self.snake_position) - 3  # default length is 3
@@ -136,12 +153,11 @@ class SnakeEnv(gym.Env):
         # Display Snake
         for position in self.snake_position:
             cv2.rectangle(self.img,(position[0],position[1]),(position[0]+10,position[1]+10),(0,255,0),3)
-        
-        #if self.done == True:
-        #    font = cv2.FONT_HERSHEY_SIMPLEX
-        #    self.img = np.zeros((500,500,3),dtype='uint8')
-        #    cv2.putText(self.img,'Your Score is {}'.format(self.score),(140,250), font, 1,(255,255,255),2,cv2.LINE_AA)
-        #    cv2.imshow('a',self.img)
+        if self.done == True:
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            self.img = np.zeros((500,500,3),dtype='uint8')
+            cv2.putText(self.img,'Your Score is {}'.format(self.score),(140,250), font, 1,(255,255,255),2,cv2.LINE_AA)
+            cv2.imshow('a',self.img)
         
     #def close (self):
     #    ...
