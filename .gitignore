@@ -47,3 +47,4 @@ src
 *.prof
 
 MUJOCO_LOG.TXT
+./mytest/models
