@@ -42,7 +42,7 @@ class SnakeEnv(gym.Env):
 
     def step(self, action):
         self.prev_actions.append(action)
-        #"""
+        """
         cv2.imshow('a',self.img)
         cv2.waitKey(1)
         self.img = np.zeros((500,500,3),dtype='uint8')
@@ -51,17 +51,20 @@ class SnakeEnv(gym.Env):
         # Display Snake
         for position in self.snake_position:
             cv2.rectangle(self.img,(position[0],position[1]),(position[0]+10,position[1]+10),(0,255,0),3)
-        #"""
+        """
 
 
         # Takes step after fixed time
-        #t_end = time.time() + 0.05
-        #k = -1
-        #while time.time() < t_end:
-        #    if k == -1:
-        #        k = cv2.waitKey(1)
-        #    else:
-        #        continue
+        """
+        t_end = time.time() + 0.05
+        k = -1
+        while time.time() < t_end:
+            if k == -1:
+                k = cv2.waitKey(1)
+            else:
+                continue
+        """
+
 
         button_direction = action
         # Change the head position based on the button direction
@@ -74,11 +77,12 @@ class SnakeEnv(gym.Env):
         elif button_direction == 3:
             self.snake_head[1] -= 10
 
+        apple_reward = 0
         # Increase Snake length on eating apple
         if self.snake_head == self.apple_position:
             self.apple_position, self.score = collision_with_apple(self.apple_position, self.score)
             self.snake_position.insert(0,list(self.snake_head))
-
+            apple_reward = 10000
         else:
             self.snake_position.insert(0,list(self.snake_head))
             self.snake_position.pop()
@@ -92,8 +96,27 @@ class SnakeEnv(gym.Env):
             cv2.imshow('a',self.img)
             """
             self.done = True
+            print("collision_with_self", collision_with_self(self.snake_position) == 1)
 
-        self.total_reward = len(self.snake_position) - 3  # default length is 3
+        """
+        self.total_reward = len(self.snake_position) - 3  # default length is 3        
+        """
+
+        """
+        # [Bug] calculate collision twice
+        apple_reward = 0
+		# Increase Snake length on eating apple
+        if self.snake_head == self.apple_position:
+            self.apple_position, self.score = collision_with_apple(self.apple_position, self.score)
+            self.snake_position.insert(0,list(self.snake_head))
+            apple_reward = 10000
+        """
+
+
+        euclidean_dist_to_apple = np.linalg.norm(np.array(self.snake_head) - np.array(self.apple_position))
+        #self.total_reward = len(self.snake_position) - 3 - euclidean_dist_to_apple
+        self.total_reward = ((250 - euclidean_dist_to_apple) + apple_reward)/100
+
         self.reward = self.total_reward - self.prev_reward
         self.prev_reward = self.total_reward
 
@@ -158,6 +181,17 @@ class SnakeEnv(gym.Env):
             self.img = np.zeros((500,500,3),dtype='uint8')
             cv2.putText(self.img,'Your Score is {}'.format(self.score),(140,250), font, 1,(255,255,255),2,cv2.LINE_AA)
             cv2.imshow('a',self.img)
+
+        # Takes step after fixed time
+        #"""
+        t_end = time.time() + 0.1
+        k = -1
+        while time.time() < t_end:
+            if k == -1:
+                k = cv2.waitKey(1)
+            else:
+                continue
+        #"""
         
     #def close (self):
     #    ...

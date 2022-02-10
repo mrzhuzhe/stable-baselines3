@@ -17,12 +17,17 @@ if not os.path.exists(logdir):
 env = SnakeEnv()
 env.reset()
 
-model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
+#model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
+
+ckpt = "./models/1644466638/100000"
+model= PPO.load(ckpt, verbose=1, tensorboard_log=logdir)
+
+model.set_env(env)
 
 TIMESTEPS = 10000
 iters = 0
 while True:
     iters += 1
-    #env.render()
     model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name=f"PPO")
     model.save(f"{models_dir}/{TIMESTEPS*iters}")
+    #env.render()
