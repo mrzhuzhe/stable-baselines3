@@ -5,21 +5,26 @@ import time
 import gym
 from stable_baselines3 import DDPG, SAC
 import cv2
+from sb3_contrib.common.wrappers import TimeFeatureWrapper 
 
 models_dir = f"models/{int(time.time())}/"
 logdir = f"logs/{int(time.time())}/"
 
-if not os.path.exists(models_dir):
-	os.makedirs(models_dir)
+#if not os.path.exists(models_dir):
+#	os.makedirs(models_dir)
 
-if not os.path.exists(logdir):
-	os.makedirs(logdir)
+#if not os.path.exists(logdir):
+#	os.makedirs(logdir)
 
-env = gym.make("FetchReach-v1")
+#env = gym.make("FetchReach-v1")
+env = gym.make("FetchPickAndPlace-v1")
+env = TimeFeatureWrapper(env)
+env.reset()
+
 env.reset()
 
 
-ckpt = "./models/sac/20000"
+ckpt = "./models/TQC/10000000"
 model= SAC.load(ckpt, env=env, verbose=1, tensorboard_log=logdir)
 
 episodes = 10

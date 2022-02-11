@@ -10,6 +10,8 @@ import numpy as np
 
 import gym
 from stable_baselines3 import HerReplayBuffer, DDPG, SAC
+from sb3_contrib.tqc.tqc import TQC
+from sb3_contrib.common.wrappers import TimeFeatureWrapper
 
 
 models_dir = f"models/{int(time.time())}/"
@@ -21,7 +23,9 @@ if not os.path.exists(models_dir):
 if not os.path.exists(logdir):
 	os.makedirs(logdir)
 
-env = gym.make("FetchReach-v1")
+#env = gym.make("FetchReach-v1")
+env = gym.make("FetchPickAndPlace-v1")
+env = TimeFeatureWrapper(env)
 env.reset()
 
 """
@@ -41,9 +45,28 @@ FetchReach-v1:
   online_sampling: True
   normalize: True
 
+FetchPickAndPlace-v1:
+  env_wrapper:
+    - sb3_contrib.common.wrappers.TimeFeatureWrapper
+    # - utils.wrappers.DoneOnSuccessWrapper:
+    #     reward_offset: 0
+    #     n_successes: 4
+    # - stable_baselines3.common.monitor.Monitor
+  n_timesteps: !!float 1e6
+  policy: 'MlpPolicy'
+  model_class: 'tqc'
+  n_sampled_goal: 4
+  goal_selection_strategy: 'future'
+  buffer_size: 1000000
+  batch_size: 1024
+  gamma: 0.95
+  learning_rate: !!float 1e-3
+  tau: 0.05
+  policy_kwargs: "dict(n_critics=2, net_arch=[512, 512, 512])"
+  online_sampling: True
 """
 
-model = DDPG('MultiInputPolicy', env,
+model = TQC('MultiInputPolicy', env,
             replay_buffer_class=HerReplayBuffer,
             # Parameters for HER
             replay_buffer_kwargs=dict(
@@ -57,7 +80,12 @@ model = DDPG('MultiInputPolicy', env,
                 #learning_starts=1000,
                 #normalize=True
             ),
+            policy_kwargs=dict(n_critics=2, net_arch=[512, 512, 512]),
+            batch_size=1024,
+            gamma=0.95,
+            tau=0.05,
             verbose=1,
+            tensorboard_log=logdir
             )
 
 
@@ -66,6 +94,6 @@ model = DDPG('MultiInputPolicy', env,
 
 #model.set_env(env)
 
-TIMESTEPS = 20000
-model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name=f"her")
+TIMESTEPS = 1e6
+model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name=f"tqc")
 model.save(f"{models_dir}/{TIMESTEPS}")
