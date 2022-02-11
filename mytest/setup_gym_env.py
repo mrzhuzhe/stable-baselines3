@@ -40,7 +40,7 @@ class SnakeEnv(gym.Env):
         
         # Example for using image as input (channel-first; channel-last also works):
         self.observation_space = spaces.Box(low=-500, high=500,
-                                        shape=(5+SNAKE_LEN_GOAL,), dtype=np.float32)        
+                                        shape=(5+4+ SNAKE_LEN_GOAL,), dtype=np.float32)        
 
     def step(self, action):
         self.prev_actions.append(action)
@@ -117,7 +117,7 @@ class SnakeEnv(gym.Env):
 
         euclidean_dist_to_apple = np.linalg.norm(np.array(self.snake_head) - np.array(self.apple_position))
         #self.total_reward = len(self.snake_position) - 3 - euclidean_dist_to_apple
-        self.total_reward = ((250 - 2*euclidean_dist_to_apple) + apple_reward)/100
+        self.total_reward = ((250 - euclidean_dist_to_apple) + apple_reward)/100
 
         self.reward = self.total_reward - self.prev_reward
         self.prev_reward = self.total_reward
@@ -142,9 +142,16 @@ class SnakeEnv(gym.Env):
         #        _snake_position_list += [self.snake_position[i][0], self.snake_position[i][1]]
 
         #print(_snake_position_list)
-        
+        # left right up down
+        coner4 = []
+        for i in [-1, 1]:
+            coner4.append([self.snake_head[0] + i*10, self.snake_head[1]])
+        for j in [-1, 1]:
+            coner4.append([self.snake_head[0], self.snake_head[1] + j*10])
+        conerAllowed = [0 if conner in self.snake_position else 1 for conner in coner4]            
+
         # create observation:
-        observation = [head_x, head_y, apple_delta_x, apple_delta_y, snake_length] + list(self.prev_actions)
+        observation = [head_x, head_y, apple_delta_x, apple_delta_y, snake_length] + conerAllowed + list(self.prev_actions)
         #+ _snake_position_list 
         observation = np.array(observation)
 
@@ -180,7 +187,7 @@ class SnakeEnv(gym.Env):
             #    _snake_position_list += [self.snake_position[i][0], self.snake_position[i][1]]
 
         # create observation:
-        observation = [head_x, head_y, apple_delta_x, apple_delta_y, snake_length] + list(self.prev_actions)
+        observation = [head_x, head_y, apple_delta_x, apple_delta_y, snake_length] + [0, 1, 1, 1] + list(self.prev_actions)
         #+ _snake_position_list 
         
         observation = np.array(observation)

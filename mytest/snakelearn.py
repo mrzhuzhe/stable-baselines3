@@ -17,10 +17,10 @@ if not os.path.exists(logdir):
 env = SnakeEnv()
 env.reset()
 
-#model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
+model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=logdir)
 
-ckpt = "./models/1644478002/400000"
-model= PPO.load(ckpt, verbose=1, tensorboard_log=logdir)
+#ckpt = "./models/1644478002/400000"
+#model= PPO.load(ckpt, verbose=1, tensorboard_log=logdir)
 
 model.set_env(env)
 
