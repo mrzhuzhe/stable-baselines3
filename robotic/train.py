@@ -24,8 +24,8 @@ if not os.path.exists(logdir):
 	os.makedirs(logdir)
 
 #env = gym.make("FetchReach-v1")
-env = gym.make("FetchPickAndPlace-v1")
-env = TimeFeatureWrapper(env)
+env = gym.make("Humanoid-v2")
+#env = TimeFeatureWrapper(env)
 env.reset()
 
 """
@@ -65,8 +65,8 @@ FetchPickAndPlace-v1:
   policy_kwargs: "dict(n_critics=2, net_arch=[512, 512, 512])"
   online_sampling: True
 """
-
-model = TQC('MultiInputPolicy', env,
+"""
+model = SAC('MultiInputPolicy', env,
             replay_buffer_class=HerReplayBuffer,
             # Parameters for HER
             replay_buffer_kwargs=dict(
@@ -87,6 +87,15 @@ model = TQC('MultiInputPolicy', env,
             verbose=1,
             tensorboard_log=logdir
             )
+"""
+model = SAC('MlpPolicy', env,
+            policy_kwargs=dict(n_critics=2, net_arch=[512, 512, 512]),
+            batch_size=1024,
+            gamma=0.95,
+            tau=0.05,
+            verbose=1,
+            tensorboard_log=logdir
+            )
 
 
 #ckpt = "./models/1644478002/400000"
@@ -95,5 +104,5 @@ model = TQC('MultiInputPolicy', env,
 #model.set_env(env)
 
 TIMESTEPS = 1e6
-model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name=f"tqc")
+model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name=f"human-sac")
 model.save(f"{models_dir}/{TIMESTEPS}")

@@ -8,7 +8,7 @@ import time
 #models_dir = "./models/1644408901/" + "40000"
 #models_dir = "./models/1644462865/" + "120000"
 #models_dir = "./models/1644466638/" + "100000"
-models_dir = "./models/1644467633/" + "970000"
+models_dir = "./models/1644485414/" + "100000"
 env = SnakeEnv()
 env.reset()
 
