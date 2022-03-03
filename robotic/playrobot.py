@@ -17,16 +17,16 @@ logdir = f"logs/{int(time.time())}/"
 #	os.makedirs(logdir)
 
 #env = gym.make("FetchReach-v1")
-#env = gym.make("FetchPickAndPlace-v1")
-env = gym.make("Humanoid-v2")
-#env = TimeFeatureWrapper(env)
+env = gym.make("FetchPickAndPlace-v1")
+#env = gym.make("Humanoid-v2")
+env = TimeFeatureWrapper(env)
 env.reset()
 
 env.reset()
 
 
-#ckpt = "./models/TQC/10000000"
-ckpt = "./models/human-sac/1000000.0"
+ckpt = "./models/TQC/10000000"
+#ckpt = "./models/human-sac/1000000.0"
 model= SAC.load(ckpt, env=env, verbose=1, tensorboard_log=logdir)
 
 episodes = 10
